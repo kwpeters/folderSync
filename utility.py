@@ -1,7 +1,21 @@
 r'''This module contains miscellaneous utility methods and classes.
 '''
 import os
+import os.path
 import re
+
+
+def CreateDir(theDir):
+    if not os.path.isdir(theDir):
+        os.makedirs(theDir)
+        
+
+def CreateDirForFile(filePath):
+    r'''Helper function that makes sure the directory for the specified file exits.
+    '''
+    theDir = os.path.dirname(filePath)
+    CreateDir(theDir)
+
 
 
 def MatchesAny(str, regexes):

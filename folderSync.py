@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     print 'Diff files:'
     for diffFile in comp.GetDiffFiles():
-        print utility.ShortenPath(diffFile, 80)
+        print utility.ShortenPath(diffFile, 30)
         #print diffFile,
 
         leftFilePath = os.path.join(leftDir, diffFile)
@@ -78,9 +78,9 @@ if __name__ == '__main__':
 
     print 'Left-only files:'
     for curFile in comp.GetLeftOnly()[1]:
-        print utility.ShortenPath(curFile, 80)
+        print utility.ShortenPath(curFile, 30)
 
     print 'Right-only files:'
     for curFile in comp.GetRightOnly()[1]:
-        print utility.ShortenPath(curFile, 80)
+        print utility.ShortenPath(curFile, 30)
 
