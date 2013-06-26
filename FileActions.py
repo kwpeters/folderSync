@@ -12,11 +12,8 @@ ACTION_DELETE_BOTH  = 'X X'
 ACTION_SKIP         = '- -'
 
 
-
-
-
 class FileActionCopyLeft(object):
-    
+
     def __init__(self, relFilePath, leftRoot, rightRoot):
         self.__relFilePath = relFilePath
         self.__leftRoot = leftRoot
@@ -33,7 +30,7 @@ class FileActionCopyLeft(object):
 
         # Create the destination directory if it doesn't exist already.
         utility.CreateDirForFile(leftFile)
-        
+
         shutil.copy2(rightFile, leftFile)
 
 
@@ -56,13 +53,13 @@ class FileActionCopyRight(object):
 
         # Create the destination directory if it doesn't exist already.
         utility.CreateDirForFile(rightFile)
-        
+
         shutil.copy2(leftFile, rightFile)
 
 
 
 class FileActionDeleteLeft(object):
-    
+
     def __init__(self, relFilePath, leftRoot, rightRoot):
         self.__relFilePath = relFilePath
         self.__leftRoot = leftRoot
@@ -80,7 +77,7 @@ class FileActionDeleteLeft(object):
 
 
 class FileActionDeleteRight(object):
-    
+
     def __init__(self, relFilePath, leftRoot, rightRoot):
         self.__relFilePath = relFilePath
         self.__leftRoot = leftRoot
@@ -97,7 +94,7 @@ class FileActionDeleteRight(object):
 
 
 class FileActionDeleteBoth(object):
-    
+
     def __init__(self, relFilePath, leftRoot, rightRoot):
         self.__relFilePath = relFilePath
         self.__leftRoot = leftRoot
@@ -118,7 +115,7 @@ class FileActionDeleteBoth(object):
 
 
 class FileActionSkip(object):
-    
+
     def __init__(self, relFilePath, leftRoot, rightRoot):
         self.__relFilePath = relFilePath
         self.__leftRoot = leftRoot

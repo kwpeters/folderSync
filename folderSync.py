@@ -55,32 +55,22 @@ if __name__ == '__main__':
     # if res == 0:
     #     newerSide = NEWER_SIDE_LEFT;
 
-    comp = FolderComparer.FolderComparer(leftDir, rightDir)
+    comp = FolderComparer.FolderComparer(leftDir, rightDir, FolderComparer.PREFER_NONE)
 
     # Same files are not interesting.
     # print 'Same files:'
     # print comp.GetSameFiles()
 
     print 'Diff files:'
-    for diffFile in comp.GetDiffFiles():
-        print utility.ShortenPath(diffFile, 30)
-        #print diffFile,
 
-        leftFilePath = os.path.join(leftDir, diffFile)
-        rightFilePath = os.path.join(rightDir, diffFile)
-
-        if os.path.getmtime(leftFilePath) < os.path.getmtime(rightFilePath):
-            print '(right is newer)'
-        elif os.path.getmtime(leftFilePath) == os.path.getmtime(rightFilePath):
-            print '(mod times are equal)'
-        else:
-            print '(left is newer)'
+    for diffFilePairing in comp.GetDiffFilePairings():
+        print diffFilePairing.Render(130)
 
     print 'Left-only files:'
-    for curFile in comp.GetLeftOnly()[1]:
+    for curFile in comp.GetLeftOnlyFiles():
         print utility.ShortenPath(curFile, 30)
 
     print 'Right-only files:'
-    for curFile in comp.GetRightOnly()[1]:
+    for curFile in comp.GetRightOnlyFiles():
         print utility.ShortenPath(curFile, 30)
 

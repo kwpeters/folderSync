@@ -7,6 +7,7 @@ import unittest
 
 from FolderComparerTests import *
 from FileActionsTests import *
+from utilityTests import *
 
 # class TestSequenceFunctions(unittest.TestCase):
 

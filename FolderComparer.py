@@ -4,6 +4,7 @@ import os.path
 import utility
 import re
 import collections
+import FilePairing
 
 
 ignoreRegexes = [
@@ -15,67 +16,67 @@ PREFER_NONE         = 0
 PREFER_LEFT         = 1
 PREFER_RIGHT        = 2
 
-WARNING_NONE         = 0
-WARNING_TAKING_OLDER = 'An older file is being copied over a newer file!'
+# WARNING_NONE         = 0
+# WARNING_TAKING_OLDER = 'An older file is being copied over a newer file!'
+
+# class DiffPairing(object):
+
+#     def __init__(self, relFilePath, leftRoot, rightRoot, preferredSide):
+#         self.__relFilePath = relFilePath
+#         self.__leftRoot = leftRoot
+#         self.__rightRoot = rightRoot
+#         self.__preferredSide = preferredSide
+#         self.__leftFilePath = os.path.join(leftRoot, relFilePath)
+#         self.__rightFilePath = os.path.join(rightRoot, relFilePath)
+
+#         leftIsNewer = True;
+#         if os.path.getmtime(self.__leftFilePath < os.path.getmtime(self.__rightFilePath)):
+#             leftIsNewer = False
+#         rightIsNewer = not leftIsNewer   # to make following logic easier
+
+#         if ((preferredSide == PREFER_LEFT) or
+#             ((preferredSide == PREFER_NONE) and leftIsNewer)):
+#             self.__allowedActions = collections.deque(
+#                 [ACTION_COPY_RIGHT, ACTION_COPY_LEFT,
+#                  ACTION_DELETE_LEFT, ACTION_DELETE_RIGHT,
+#                  ACTION_SKIP])
+#         elif ((preferredSide == PREFER_RIGHT) or
+#               ((preferredSide == PREFER_NONE) and rightIsNewer)):
+#             self.__allowedActions = collections.deque(
+#                 [ACTION_COPY_LEFT, ACTION_COPY_RIGHT,
+#                  ACTION_DELETE_LEFT, ACTION_DELETE_RIGHT,
+#                  ACTION_SKIP])
 
 
-class DiffPairing(object):
-
-    def __init__(self, relFilePath, leftRoot, rightRoot, preferredSide):
-        self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
-        self.__preferredSide = preferredSide
-        self.__leftFilePath = os.path.join(leftRoot, relFilePath)
-        self.__rightFilePath = os.path.join(rightRoot, relFilePath)
+#     def GetCurrentAction(self):
+#         return self.__allowedActions[0]
 
 
-        leftIsNewer = True;
-        if os.path.getmtime(self.__leftFilePath < os.path.getmtime(self.__rightFilePath)):
-            leftIsNewer = False
-        rightIsNewer = not leftIsNewer   # to make following logic easier
-
-        if (preferredSide == PREFER_LEFT) or ((preferredSide == PREFER_NONE) and leftIsNewer):
-            self.__allowedActions = collections.deque([ACTION_COPY_RIGHT, ACTION_COPY_LEFT, ACTION_DELETE_LEFT, ACTION_DELETE_RIGHT, ACTION_SKIP])
-        elif (preferredSide == PREFER_RIGHT) or ((preferredSide == PREFER_NONE) and rightIsNewer):
-            self.__allowedActions = collections.deque([ACTION_COPY_LEFT, ACTION_COPY_RIGHT, ACTION_DELETE_LEFT, ACTION_DELETE_RIGHT, ACTION_SKIP])
+#     def CycleAction(self):
+#         self.__allowedActions.rotate(-1)
 
 
+#     def GetWarnings(self):
+#         warnings = []
+#         curAction = self.GetCurrentAction()
 
-    def GetCurrentAction(self):
-        return self.__allowedActions[0]
+#         if (((curAction == ACTION_COPY_RIGHT) and rightIsNewer) or
+#             ((curAction == ACTION_COPY_LEFT) and leftIsNewer)):
+#             warnings.append(WARNING_TAKING_OLDER)
 
-
-    def CycleAction(self):
-        self.__allowedActions.rotate(-1)
-
-
-    def GetWarnings(self):
-        warnings = []
-        curAction = self.GetCurrentAction()
-
-        if (((curAction == ACTION_COPY_RIGHT) and rightIsNewer) or
-            ((curAction == ACTION_COPY_LEFT) and leftIsNewer)):
-            warnings.append(WARNING_TAKING_OLDER)
-
-        return warnings
-    
-
-    def ExecuteAction(self):
-        pass
+#         return warnings
 
 
-    def Render(self):
-        pass
+#     def ExecuteAction(self):
+#         pass
 
-    
 
-        
-
+#     def Render(self):
+#         pass
 
 
 class FolderComparer(object):
-    
+
     def __init__(self, leftFolder, rightFolder, preferredSide):
 
         self.__leftRoot = leftFolder
@@ -89,7 +90,7 @@ class FolderComparer(object):
          self.__rightOnlyFiles,
          self.__leftOnlyDirs,
          self.__rightOnlyDirs) = self.__analyzeDir(dircmp, leftFolder, rightFolder)
-        
+
 
     def __analyzeDir(self, dircmp, leftRoot, rightRoot):
 
@@ -102,12 +103,12 @@ class FolderComparer(object):
         diffFiles = utility.FilterOut(diffFiles, ignoreRegexes)
         diffFiles = [os.path.join(dircmp.left, curFile) for curFile in diffFiles]
         diffFiles = [os.path.relpath(curFile, leftRoot) for curFile in diffFiles]
-        
+
         leftOnlyFiles = []
         leftOnlyDirs = []
         rightOnlyFiles = []
         rightOnlyDirs = []
-        
+
         for curItem in dircmp.left_only:
             itemName = os.path.join(dircmp.left, curItem)
             if utility.MatchesAny(itemName, ignoreRegexes):
@@ -146,7 +147,8 @@ class FolderComparer(object):
             rightOnlyFiles.extend(subDirResults[4])
             rightOnlyDirs.extend(subDirResults[5])
 
-        return (sameFiles, diffFiles, leftOnlyFiles, rightOnlyFiles, leftOnlyDirs, rightOnlyDirs)
+        return (sameFiles, diffFiles,leftOnlyFiles,
+                rightOnlyFiles, leftOnlyDirs, rightOnlyDirs)
 
 
     def GetSameFiles(self):
@@ -157,11 +159,18 @@ class FolderComparer(object):
         return self.__diffFiles
 
 
+    # def GetDiffFilePairings(self):
+    #     diffFiles = self.GetDiffFiles()
+    #     pairings = [DiffPairing(curDiffFile, self.__leftRoot, self.__rightRoot, self.__preferredSide)
+    #                 for curDiffFile in diffFiles]
+    #     return pairings
+
     def GetDiffFilePairings(self):
         diffFiles = self.GetDiffFiles()
-        pairings = [DiffPairing(curDiffFile, self.__leftRoot, self.__rightRoot, self.__preferredSide)
-                    for curDiffFile in diffFiles]
-        return pairings        
+        diffFiles = [FilePairing.CreateDiffFilePairing(
+                         curDiffFile, self.__leftRoot, self.__rightRoot, self.__preferredSide) for
+            curDiffFile in diffFiles]
+        return diffFiles
 
 
     def GetLeftOnlyDirs(self):
