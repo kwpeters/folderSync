@@ -32,7 +32,9 @@ def MatchesAny(str, regexes):
 def FilterOut(itemsToFilter, regexesToRemove):
     result = []
     for curItem in itemsToFilter:
-        if not MatchesAny(curItem, regexesToRemove):
+        if MatchesAny(curItem, regexesToRemove):
+            pass
+        else:
             result.append(curItem)
     return result
 

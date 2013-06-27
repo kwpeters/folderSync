@@ -4,9 +4,6 @@ import os.path
 import FolderComparer
 import utility
 
-WARNING_NONE         = 0
-WARNING_TAKING_OLDER = 'An older file is being copied over a newer file!'
-
 
 def CreateDiffFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
 
@@ -26,7 +23,7 @@ def CreateDiffFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
     skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
 
     # If a preferred side is not set, set it based on which file is newer.
-    if not preferredSide:
+    if preferredSide == FolderComparer.PREFER_NONE:
         if leftModTime > rightModTime:
             preferredSide = FolderComparer.PREFER_LEFT
         else:
@@ -50,12 +47,56 @@ def CreateDiffFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
 
 
 
-def CreateLeftOnlyFilePairing(relFilePath, leftRoot, rightRoot):
-    pass
+def CreateLeftOnlyFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
+    leftFilePath = os.path.join(leftRoot, relFilePath)
+    assert os.path.isfile(leftFilePath)
+
+    copyRight = FileActions.FileActionCopyRight(relFilePath, leftRoot, rightRoot)
+    deleteLeft = FileActions.FileActionDeleteLeft(relFilePath, leftRoot, rightRoot)
+    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+
+    if preferredSide == FolderComparer.PREFER_NONE:
+        preferredSide = FolderComparer.PREFER_LEFT
+
+    actions = collections.deque()
+    if preferredSide == FolderComparer.PREFER_LEFT:
+        actions.append(copyRight)
+        actions.append(deleteLeft)
+    else:
+        actions.append(deleteLeft)
+        actions.append(copyRight)
+
+    actions.append(skip)
+
+    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    return pairing
 
 
-def CreateRightOnlyFilePairing(relFilePath, leftRoot, rightRoot):
-    pass
+def CreateRightOnlyFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
+    rightFilePath = os.path.join(rightRoot, relFilePath)
+    assert os.path.isfile(rightFilePath)
+
+    copyLeft = FileActions.FileActionCopyLeft(relFilePath, leftRoot, rightRoot)
+    deleteRight = FileActions.FileActionDeleteRight(relFilePath, leftRoot, rightRoot)
+    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+
+    if preferredSide == FolderComparer.PREFER_NONE:
+        preferredSide = FolderComparer.PREFER_RIGHT
+
+    actions = collections.deque()
+    if preferredSide == FolderComparer.PREFER_LEFT:
+        actions.append(deleteRight)
+        actions.append(copyLeft)
+    else:
+        actions.append(copyLeft)
+        actions.append(deleteRight)
+
+    actions.append(skip)
+
+    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    return pairing
+
+
 
 
 class FilePairing(object):
@@ -77,33 +118,19 @@ class FilePairing(object):
 
 
     def GetWarnings(self):
-        currentActionType = self.__actions[0].GetType()
-
-        leftFilePath = os.path.join(self.__leftRoot, self.__relFilePath)
-        assert os.path.isfile(leftFilePath)
-        rightFilePath = os.path.join(self.__rightRoot, self.__relFilePath)
-        assert os.path.isfile(rightFilePath)
-
-        leftModTime = os.path.getmtime(leftFilePath)
-        rightModTime = os.path.getmtime(rightFilePath)
-        leftIsNewer = leftModTime > rightModTime
-        rightIsNewer = not leftIsNewer
-
-        warnings = []
-        if ((leftIsNewer and (currentActionType == FileActions.ACTION_COPY_LEFT)) or
-            (rightIsNewer and (currentActionType == FileActions.ACTION_COPY_RIGHT))):
-            warnings.append(WARNING_TAKING_OLDER)
-
-        return warnings
+        return self.__actions[0].GetWarnings()
 
 
     def Render(self, width):
         currentActionType = self.__actions[0].GetType()
 
         leftFilePath = os.path.join(self.__leftRoot, self.__relFilePath)
-        assert os.path.isfile(leftFilePath)
+        if not os.path.isfile(leftFilePath):
+            leftFilePath = ''
+
         rightFilePath = os.path.join(self.__rightRoot, self.__relFilePath)
-        assert os.path.isfile(rightFilePath)
+        if not os.path.isfile(rightFilePath):
+            rightFilePath = ''
 
         shortLen = (width - 5)/2
 

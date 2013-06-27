@@ -8,71 +8,14 @@ import FilePairing
 
 
 ignoreRegexes = [
-    re.compile(r'^(.*/)*\._.*$', re.IGNORECASE)   # todo: Update "/" for use on Windows
+    re.compile(r'^(.*/)*\._.*$', re.IGNORECASE),   # todo: Update "/" for use on Windows
+    re.compile(r'^(.*/)*\.DS_Store$', re.IGNORECASE)   # todo: Update "/" for use on Windows
     ]
 
 
 PREFER_NONE         = 0
 PREFER_LEFT         = 1
 PREFER_RIGHT        = 2
-
-# WARNING_NONE         = 0
-# WARNING_TAKING_OLDER = 'An older file is being copied over a newer file!'
-
-# class DiffPairing(object):
-
-#     def __init__(self, relFilePath, leftRoot, rightRoot, preferredSide):
-#         self.__relFilePath = relFilePath
-#         self.__leftRoot = leftRoot
-#         self.__rightRoot = rightRoot
-#         self.__preferredSide = preferredSide
-#         self.__leftFilePath = os.path.join(leftRoot, relFilePath)
-#         self.__rightFilePath = os.path.join(rightRoot, relFilePath)
-
-#         leftIsNewer = True;
-#         if os.path.getmtime(self.__leftFilePath < os.path.getmtime(self.__rightFilePath)):
-#             leftIsNewer = False
-#         rightIsNewer = not leftIsNewer   # to make following logic easier
-
-#         if ((preferredSide == PREFER_LEFT) or
-#             ((preferredSide == PREFER_NONE) and leftIsNewer)):
-#             self.__allowedActions = collections.deque(
-#                 [ACTION_COPY_RIGHT, ACTION_COPY_LEFT,
-#                  ACTION_DELETE_LEFT, ACTION_DELETE_RIGHT,
-#                  ACTION_SKIP])
-#         elif ((preferredSide == PREFER_RIGHT) or
-#               ((preferredSide == PREFER_NONE) and rightIsNewer)):
-#             self.__allowedActions = collections.deque(
-#                 [ACTION_COPY_LEFT, ACTION_COPY_RIGHT,
-#                  ACTION_DELETE_LEFT, ACTION_DELETE_RIGHT,
-#                  ACTION_SKIP])
-
-
-#     def GetCurrentAction(self):
-#         return self.__allowedActions[0]
-
-
-#     def CycleAction(self):
-#         self.__allowedActions.rotate(-1)
-
-
-#     def GetWarnings(self):
-#         warnings = []
-#         curAction = self.GetCurrentAction()
-
-#         if (((curAction == ACTION_COPY_RIGHT) and rightIsNewer) or
-#             ((curAction == ACTION_COPY_LEFT) and leftIsNewer)):
-#             warnings.append(WARNING_TAKING_OLDER)
-
-#         return warnings
-
-
-#     def ExecuteAction(self):
-#         pass
-
-
-#     def Render(self):
-#         pass
 
 
 class FolderComparer(object):
@@ -137,8 +80,8 @@ class FolderComparer(object):
         rightOnlyFiles = utility.FilterOut(rightOnlyFiles, ignoreRegexes)
         rightOnlyDirs = [os.path.relpath(curFile, rightRoot) for curFile in rightOnlyDirs]
 
-        for subDirCmp in dircmp.subdirs.values():
 
+        for subDirCmp in dircmp.subdirs.values():
             subDirResults = self.__analyzeDir(subDirCmp, leftRoot, rightRoot)
             sameFiles.extend(subDirResults[0])
             diffFiles.extend(subDirResults[1])
@@ -181,9 +124,25 @@ class FolderComparer(object):
         return self.__leftOnlyFiles
 
 
+    def GetLeftOnlyFilePairings(self):
+        leftOnlyFiles = self.GetLeftOnlyFiles()
+        leftOnlyFiles = [FilePairing.CreateLeftOnlyFilePairing(
+                curFile, self.__leftRoot, self.__rightRoot, self.__preferredSide) for
+                         curFile in leftOnlyFiles]
+        return leftOnlyFiles
+
+
     def GetRightOnlyDirs(self):
         return self.__rightOnlyDirs
 
 
     def GetRightOnlyFiles(self):
         return self.__rightOnlyFiles
+
+
+    def GetRightOnlyFilePairings(self):
+        rightOnlyFiles = self.GetRightOnlyFiles()
+        rightOnlyFiles = [FilePairing.CreateRightOnlyFilePairing(
+                curFile, self.__leftRoot, self.__rightRoot, self.__preferredSide) for
+                         curFile in rightOnlyFiles]
+        return rightOnlyFiles

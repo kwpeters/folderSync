@@ -1,4 +1,4 @@
-#! /usr/bin/python -O
+#! /usr/bin/python
 import sys
 import getopt
 import os.path
@@ -15,6 +15,18 @@ folderSync.py <left_folder> <right_folder>
 
 NEWER_SIDE_LEFT = 0;
 NEWER_SIDE_RIGHT = 1;
+
+OUTPUT_WIDTH = 120
+
+def PrintPairings(pairings):
+    for pairing in pairings:
+        PrintPairing(pairing)
+
+
+def PrintPairing(pairing):
+    print pairing.Render(OUTPUT_WIDTH)
+    for curWarning in pairing.GetWarnings():
+        print curWarning
 
 
 
@@ -61,16 +73,24 @@ if __name__ == '__main__':
     # print 'Same files:'
     # print comp.GetSameFiles()
 
-    print 'Diff files:'
+    print 'Left:', leftDir
+    print 'Right:', rightDir
 
-    for diffFilePairing in comp.GetDiffFilePairings():
-        print diffFilePairing.Render(130)
+    diffPairings = comp.GetDiffFilePairings()
+    leftOnlyPairings = comp.GetLeftOnlyFilePairings()
+    rightOnlyPairings = comp.GetRightOnlyFilePairings()
 
-    print 'Left-only files:'
-    for curFile in comp.GetLeftOnlyFiles():
-        print utility.ShortenPath(curFile, 30)
+    if len(diffPairings) > 0:
+        print
+        print 'Modified files:'
+        PrintPairings(diffPairings)
 
-    print 'Right-only files:'
-    for curFile in comp.GetRightOnlyFiles():
-        print utility.ShortenPath(curFile, 30)
+    if len(leftOnlyPairings) > 0:
+        print
+        print 'Left-only files:'
+        PrintPairings(leftOnlyPairings)
 
+    if len(rightOnlyPairings) > 0:
+        print
+        print 'Right-only files:'
+        PrintPairings(rightOnlyPairings)
