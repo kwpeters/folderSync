@@ -78,7 +78,9 @@ if __name__ == '__main__':
 
     diffPairings = comp.GetDiffFilePairings()
     leftOnlyPairings = comp.GetLeftOnlyFilePairings()
+    leftOnlyDirPairings = comp.GetLeftOnlyDirPairings()
     rightOnlyPairings = comp.GetRightOnlyFilePairings()
+    rightOnlyDirPairings = comp.GetRightOnlyDirPairings()
 
     if len(diffPairings) > 0:
         print
@@ -90,7 +92,17 @@ if __name__ == '__main__':
         print 'Left-only files:'
         PrintPairings(leftOnlyPairings)
 
+    if len(leftOnlyDirPairings) > 0:
+        print
+        print 'Left-only directories:'
+        PrintPairings(leftOnlyDirPairings)
+
     if len(rightOnlyPairings) > 0:
         print
         print 'Right-only files:'
         PrintPairings(rightOnlyPairings)
+
+    if len(rightOnlyDirPairings) > 0:
+        print
+        print 'Right-only directories:'
+        PrintPairings(rightOnlyDirPairings)

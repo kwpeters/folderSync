@@ -97,6 +97,56 @@ def CreateRightOnlyFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
     return pairing
 
 
+def CreateLeftOnlyDirPairing(relFilePath, leftRoot, rightRoot, preferredSide):
+    theDir = os.path.join(leftRoot, relFilePath)
+    assert os.path.isdir(theDir), theDir + ' is not a directory!'
+
+    copyTreeRight = FileActions.FileActionCopyTreeRight(relFilePath, leftRoot, rightRoot)
+    deleteTreeLeft = FileActions.FileActionDeleteTreeLeft(relFilePath, leftRoot, rightRoot)
+    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+
+    if preferredSide == FolderComparer.PREFER_NONE:
+        preferredSide = FolderComparer.PREFER_LEFT
+
+    actions = collections.deque()
+    if preferredSide == FolderComparer.PREFER_LEFT:
+        actions.append(copyTreeRight)
+        actions.append(deleteTreeLeft)
+    else:
+        actions.append(deleteTreeLeft)
+        actions.append(copyTreeRight)
+
+    actions.append(skip)
+
+    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    return pairing
+
+
+def CreateRightOnlyDirPairing(relFilePath, leftRoot, rightRoot, preferredSide):
+    theDir = os.path.join(rightRoot, relFilePath)
+    assert os.path.isdir(theDir)
+
+    copyTreeLeft = FileActions.FileActionCopyTreeLeft(relFilePath, leftRoot, rightRoot)
+    deleteTreeRight = FileActions.FileActionDeleteTreeRight(relFilePath, leftRoot, rightRoot)
+    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+
+    if preferredSide == FolderComparer.PREFER_NONE:
+        preferredSide = FolderComparer.PREFER_RIGHT
+
+    actions = collections.deque()
+    if preferredSide == FolderComparer.PREFER_LEFT:
+        actions.append(deleteTreeRight)
+        actions.append(copyTreeLeft)
+    else:
+        actions.append(copyTreeLeft)
+        actions.append(deleteTreeRight)
+
+    actions.append(skip)
+
+    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    return pairing
+
+
 
 
 class FilePairing(object):
@@ -125,11 +175,11 @@ class FilePairing(object):
         currentActionType = self.__actions[0].GetType()
 
         leftFilePath = os.path.join(self.__leftRoot, self.__relFilePath)
-        if not os.path.isfile(leftFilePath):
+        if not os.path.isfile(leftFilePath) and not os.path.isdir(leftFilePath):
             leftFilePath = ''
 
         rightFilePath = os.path.join(self.__rightRoot, self.__relFilePath)
-        if not os.path.isfile(rightFilePath):
+        if not os.path.isfile(rightFilePath) and not os.path.isdir(rightFilePath):
             rightFilePath = ''
 
         shortLen = (width - 5)/2

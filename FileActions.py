@@ -4,12 +4,16 @@ import shutil
 import utility
 
 
-ACTION_COPY_LEFT    = '<--'
-ACTION_COPY_RIGHT   = '-->'
-ACTION_DELETE_LEFT  = 'X -'
-ACTION_DELETE_RIGHT = '- X'
-ACTION_DELETE_BOTH  = 'X X'
-ACTION_SKIP         = '- -'
+ACTION_COPY_LEFT         = '<--'
+ACTION_COPY_RIGHT        = '-->'
+ACTION_DELETE_LEFT       = 'x -'
+ACTION_DELETE_RIGHT      = '- x'
+ACTION_DELETE_BOTH       = 'x x'
+ACTION_SKIP              = '- -'
+ACTION_COPY_TREE_LEFT    = '<=='
+ACTION_COPY_TREE_RIGHT   = '==>'
+ACTION_DELETE_TREE_LEFT  = 'X -'
+ACTION_DELETE_TREE_RIGHT = '- X'
 
 WARNING_TAKING_OLDER = 'An older file is being copied over a newer file!'
 
@@ -181,3 +185,89 @@ class FileActionSkip(object):
 
     def PerformAction(self):
         pass
+
+
+class FileActionCopyTreeLeft(object):
+
+    def __init__(self, relFilePath, leftRoot, rightRoot):
+        self.__relFilePath = relFilePath
+        self.__leftRoot = leftRoot
+        self.__rightRoot = rightRoot
+
+
+    def GetType(self):
+        return ACTION_COPY_TREE_LEFT
+
+
+    def GetWarnings(self):
+        return []
+
+
+    def PerformAction(self):
+        srcDir = os.path.join(self.__rightRoot, self.__relFilePath)
+        dstDir = os.path.join(self.__leftRoot, self.__relFilePath)
+        shutil.copytree(srcDir, dstDir)
+
+
+class FileActionCopyTreeRight(object):
+
+    def __init__(self, relFilePath, leftRoot, rightRoot):
+        self.__relFilePath = relFilePath
+        self.__leftRoot = leftRoot
+        self.__rightRoot = rightRoot
+
+
+    def GetType(self):
+        return ACTION_COPY_TREE_RIGHT
+
+
+    def GetWarnings(self):
+        return []
+
+
+    def PerformAction(self):
+        srcDir = os.path.join(self.__leftRoot, self.__relFilePath)
+        dstDir = os.path.join(self.__rightRoot, self.__relFilePath)
+        shutil.copytree(srcDir, dstDir)
+
+
+class FileActionDeleteTreeLeft(object):
+
+    def __init__(self, relFilePath, leftRoot, rightRoot):
+        self.__relFilePath = relFilePath
+        self.__leftRoot = leftRoot
+        self.__rightRoot = rightRoot
+
+
+    def GetType(self):
+        return ACTION_DELETE_TREE_LEFT
+
+
+    def GetWarnings(self):
+        return []
+
+
+    def PerformAction(self):
+        dir = os.path.join(self.__leftRoot, self.__relFilePath)
+        shutil.rmtree(dir)
+
+
+class FileActionDeleteTreeRight(object):
+
+    def __init__(self, relFilePath, leftRoot, rightRoot):
+        self.__relFilePath = relFilePath
+        self.__leftRoot = leftRoot
+        self.__rightRoot = rightRoot
+
+
+    def GetType(self):
+        return ACTION_DELETE_TREE_RIGHT
+
+
+    def GetWarnings(self):
+        return []
+
+
+    def PerformAction(self):
+        theDir = os.path.join(self.__rightRoot, self.__relFilePath)
+        shutil.rmtree(theDir)

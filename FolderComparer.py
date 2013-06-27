@@ -30,8 +30,8 @@ class FolderComparer(object):
         (self.__sameFiles,
          self.__diffFiles,
          self.__leftOnlyFiles,
-         self.__rightOnlyFiles,
          self.__leftOnlyDirs,
+         self.__rightOnlyFiles,
          self.__rightOnlyDirs) = self.__analyzeDir(dircmp, leftFolder, rightFolder)
 
 
@@ -90,8 +90,8 @@ class FolderComparer(object):
             rightOnlyFiles.extend(subDirResults[4])
             rightOnlyDirs.extend(subDirResults[5])
 
-        return (sameFiles, diffFiles,leftOnlyFiles,
-                rightOnlyFiles, leftOnlyDirs, rightOnlyDirs)
+        return (sameFiles, diffFiles, leftOnlyFiles, leftOnlyDirs,
+                rightOnlyFiles, rightOnlyDirs)
 
 
     def GetSameFiles(self):
@@ -101,12 +101,6 @@ class FolderComparer(object):
     def GetDiffFiles(self):
         return self.__diffFiles
 
-
-    # def GetDiffFilePairings(self):
-    #     diffFiles = self.GetDiffFiles()
-    #     pairings = [DiffPairing(curDiffFile, self.__leftRoot, self.__rightRoot, self.__preferredSide)
-    #                 for curDiffFile in diffFiles]
-    #     return pairings
 
     def GetDiffFilePairings(self):
         diffFiles = self.GetDiffFiles()
@@ -118,6 +112,14 @@ class FolderComparer(object):
 
     def GetLeftOnlyDirs(self):
         return self.__leftOnlyDirs
+
+
+    def GetLeftOnlyDirPairings(self):
+        leftOnlyDirs = self.GetLeftOnlyDirs()
+        leftOnlyDirs = [FilePairing.CreateLeftOnlyDirPairing(
+                curDir, self.__leftRoot, self.__rightRoot, self.__preferredSide)
+                        for curDir in leftOnlyDirs]
+        return leftOnlyDirs
 
 
     def GetLeftOnlyFiles(self):
@@ -134,6 +136,14 @@ class FolderComparer(object):
 
     def GetRightOnlyDirs(self):
         return self.__rightOnlyDirs
+
+
+    def GetRightOnlyDirPairings(self):
+        rightOnlyDirs = self.GetRightOnlyDirs()
+        rightOnlyDirs = [FilePairing.CreateRightOnlyDirPairing(
+                curDir, self.__leftRoot, self.__rightRoot, self.__preferredSide)
+                        for curDir in rightOnlyDirs]
+        return rightOnlyDirs
 
 
     def GetRightOnlyFiles(self):
