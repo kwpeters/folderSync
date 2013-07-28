@@ -1,8 +1,5 @@
 
 import os
-# import win32con
-# import win32api
-
 
 
 def NukeFolder(path, includeRoot = True):
@@ -12,7 +9,7 @@ def NukeFolder(path, includeRoot = True):
     True (the default).
     If the folder does not exist, False will be returned.  Otherwise, True
     will be returned.'''
-    
+
     # If the specified path is not a directory, return immediately.
     if (not os.path.isdir(path)):
         return False
@@ -25,19 +22,20 @@ def NukeFolder(path, includeRoot = True):
 
         # Delete the files.
         for name in files:
-            file = os.path.join(root, name)
-            NukeFile(file)
+            curFile = os.path.join(root, name)
+            NukeFile(curFile)
 
         # Delete the subdirectories.
         for name in dirs:
-            dir = os.path.join(root, name)
-            os.rmdir(dir)
-    
+            curDir = os.path.join(root, name)
+            os.rmdir(curDir)
+
     # If the caller wants to remove the specified folder as well, do it now.
     if (includeRoot):
         os.rmdir(path)
-    
+
     return True
+
 
 def NukeFile(fileName):
     r'''Deletes the specified file.  Will remove the read-only

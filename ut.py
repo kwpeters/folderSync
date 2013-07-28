@@ -6,6 +6,7 @@ This program runs the unit tests for folderSync.
 import unittest
 
 from FolderComparerTests import *
+from FolderComparerConfigTests import *
 from FileActionsTests import *
 from utilityTests import *
 

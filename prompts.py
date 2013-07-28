@@ -29,11 +29,11 @@ def GetDir(prompt, default = None):
 
     inputIsValid = False
     while not inputIsValid:
-        dir = raw_input('> ')
-        if (dir == '') and default:
-            dir = default
-        inputIsValid = os.path.isdir(dir)
-    return dir
+        theDir = raw_input('> ')
+        if (theDir == '') and default:
+            theDir = default
+        inputIsValid = os.path.isdir(theDir)
+    return theDir
 
 
 def GetMaskedInput(prompt, regex, default = None):

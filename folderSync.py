@@ -2,9 +2,9 @@
 import sys
 import getopt
 import os.path
+import FolderComparerConfig
 import FolderComparer
-import prompts
-import utility
+# import prompts
 
 
 def GetUsage():
@@ -67,7 +67,8 @@ if __name__ == '__main__':
     # if res == 0:
     #     newerSide = NEWER_SIDE_LEFT;
 
-    comp = FolderComparer.FolderComparer(leftDir, rightDir, FolderComparer.PREFER_NONE)
+    config = FolderComparerConfig.FolderComparerConfig(leftDir, rightDir, FolderComparerConfig.PREFER_NONE, [])
+    comp = FolderComparer.FolderComparer(config)
 
     # Same files are not interesting.
     # print 'Same files:'

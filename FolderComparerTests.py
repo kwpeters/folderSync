@@ -2,6 +2,7 @@ import unittest
 import NukeFolder
 import os
 import os.path
+import FolderComparerConfig
 import FolderComparer
 import shutil
 import utility
@@ -26,13 +27,13 @@ class FolderComparerTests(unittest.TestCase):
 
     def tearDown(self):
         nukeSucceeded = NukeFolder.NukeFolder(UT_FIXTURE)
-        assert nukefolder
+        assert nukeSucceeded
 
 
     def __createSameFile(self, relFilePath):
         sameFileLeft = os.path.join(FIXTURE_DIR_LEFT, relFilePath)
         utility.CreateDirForFile(sameFileLeft)
-        
+
         sameFileRight = os.path.join(FIXTURE_DIR_RIGHT, relFilePath)
         utility.CreateDirForFile(sameFileRight)
 
@@ -88,14 +89,18 @@ class FolderComparerTests(unittest.TestCase):
 
 
     def testIsCreatable(self):
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+        comp = FolderComparer.FolderComparer(config)
         self.assertTrue(comp)
 
 
     def testSameFiles(self):
         self.__createSameFile('samefile.txt')
-        
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+        comp = FolderComparer.FolderComparer(config)
         self.assertEqual(comp.GetSameFiles(), ['samefile.txt'])
         self.assertEqual(comp.GetDiffFiles(), [])
         self.assertEqual(comp.GetLeftOnlyDirs(), [])
@@ -107,7 +112,10 @@ class FolderComparerTests(unittest.TestCase):
     def testSameFilesInSubdirs(self):
         self.__createSameFile(os.path.join('subdir', 'samefile.txt'))
 
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE);
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+
+        comp = FolderComparer.FolderComparer(config);
         self.assertEqual(comp.GetSameFiles(), [os.path.join('subdir', 'samefile.txt')])
         self.assertEqual(comp.GetDiffFiles(), [])
         self.assertEqual(comp.GetLeftOnlyDirs(), [])
@@ -119,7 +127,10 @@ class FolderComparerTests(unittest.TestCase):
     def testDiffFiles(self):
         self.__createDiffFile('thefile.txt')
 
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+
+        comp = FolderComparer.FolderComparer(config)
         self.assertEqual(comp.GetSameFiles(), [])
         self.assertEqual(comp.GetDiffFiles(), ['thefile.txt'])
         self.assertEqual(comp.GetLeftOnlyDirs(), [])
@@ -127,26 +138,32 @@ class FolderComparerTests(unittest.TestCase):
         self.assertEqual(comp.GetRightOnlyDirs(), [])
         self.assertEqual(comp.GetRightOnlyFiles(), [])
 
-        
+
 
     def testLeftOnly(self):
         self.__createLeftOnlyDir('leftOnlyDir')
         self.__createLeftOnlyFile('leftOnlyFile.txt')
 
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+
+        comp = FolderComparer.FolderComparer(config)
         self.assertEqual(comp.GetSameFiles(), [])
         self.assertEqual(comp.GetDiffFiles(), [])
         self.assertEqual(comp.GetLeftOnlyDirs(), ['leftOnlyDir'])
         self.assertEqual(comp.GetLeftOnlyFiles(), ['leftOnlyFile.txt'])
         self.assertEqual(comp.GetRightOnlyDirs(), [])
         self.assertEqual(comp.GetRightOnlyFiles(), [])
-        
-    
+
+
     def testRightOnly(self):
         self.__createRightOnlyDir('rightOnlyDir')
         self.__createRightOnlyFile('rightOnlyFile.txt')
 
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+
+        comp = FolderComparer.FolderComparer(config)
         self.assertEqual(comp.GetSameFiles(), [])
         self.assertEqual(comp.GetDiffFiles(), [])
         self.assertEqual(comp.GetLeftOnlyDirs(), [])
@@ -160,8 +177,11 @@ class FolderComparerTests(unittest.TestCase):
         '''
         self.__createSameFile('._samefile.txt')
         self.__createSameFile(os.path.join('folder', '._anothersamefile.txt'))
-        
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+
+        comp = FolderComparer.FolderComparer(config)
         self.assertEqual(comp.GetSameFiles(), [])
         self.assertEqual(comp.GetDiffFiles(), [])
         self.assertEqual(comp.GetLeftOnlyDirs(), [])
@@ -175,8 +195,11 @@ class FolderComparerTests(unittest.TestCase):
         '''
         self.__createDiffFile('._difffile.txt')
         self.__createDiffFile(os.path.join('folder', '._anotherdifffile.txt'))
-        
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+
+        comp = FolderComparer.FolderComparer(config)
         self.assertEqual(comp.GetSameFiles(), [])
         self.assertEqual(comp.GetDiffFiles(), [])
         self.assertEqual(comp.GetLeftOnlyDirs(), [])
@@ -190,8 +213,11 @@ class FolderComparerTests(unittest.TestCase):
         '''
         self.__createLeftOnlyFile('._leftfile.txt')
         self.__createLeftOnlyFile(os.path.join('folder', '._anotherleftfile.txt'))
-        
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+
+        comp = FolderComparer.FolderComparer(config)
         self.assertEqual(comp.GetSameFiles(), [])
         self.assertEqual(comp.GetDiffFiles(), [])
         self.assertEqual(comp.GetLeftOnlyDirs(), ['folder'])
@@ -205,14 +231,14 @@ class FolderComparerTests(unittest.TestCase):
         '''
         self.__createRightOnlyFile('._rightfile.txt')
         self.__createRightOnlyFile(os.path.join('folder', '._anotherrightfile.txt'))
-        
-        comp = FolderComparer.FolderComparer(FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparer.PREFER_NONE)
+
+        config = FolderComparerConfig.FolderComparerConfig(
+            FIXTURE_DIR_LEFT, FIXTURE_DIR_RIGHT, FolderComparerConfig.PREFER_NONE, [])
+
+        comp = FolderComparer.FolderComparer(config)
         self.assertEqual(comp.GetSameFiles(), [])
         self.assertEqual(comp.GetDiffFiles(), [])
         self.assertEqual(comp.GetLeftOnlyDirs(), [])
         self.assertEqual(comp.GetLeftOnlyFiles(), [])
         self.assertEqual(comp.GetRightOnlyDirs(), ['folder'])
         self.assertEqual(comp.GetRightOnlyFiles(), [])
-
-
-    

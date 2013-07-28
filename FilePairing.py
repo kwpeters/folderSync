@@ -1,36 +1,37 @@
 import collections
 import FileActions
 import os.path
-import FolderComparer
+import FolderComparerConfig
 import utility
 
 
-def CreateDiffFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
+def CreateDiffFilePairing(relFilePath, config):
 
-    leftFilePath = os.path.join(leftRoot, relFilePath)
+    leftFilePath = os.path.join(config.GetLeftFolder(), relFilePath)
     assert os.path.isfile(leftFilePath)
-    rightFilePath = os.path.join(rightRoot, relFilePath)
+    rightFilePath = os.path.join(config.GetRightFolder(), relFilePath)
     assert os.path.isfile(rightFilePath)
 
     leftModTime = os.path.getmtime(leftFilePath)
     rightModTime = os.path.getmtime(rightFilePath)
 
-    copyLeft = FileActions.FileActionCopyLeft(relFilePath, leftRoot, rightRoot)
-    copyRight = FileActions.FileActionCopyRight(relFilePath, leftRoot, rightRoot)
-    deleteLeft = FileActions.FileActionDeleteLeft(relFilePath, leftRoot, rightRoot)
-    deleteRight = FileActions.FileActionDeleteRight(relFilePath, leftRoot, rightRoot)
-    deleteBoth = FileActions.FileActionDeleteBoth(relFilePath, leftRoot, rightRoot)
-    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+    copyLeft = FileActions.FileActionCopyLeft(relFilePath, config)
+    copyRight = FileActions.FileActionCopyRight(relFilePath, config)
+    deleteLeft = FileActions.FileActionDeleteLeft(relFilePath, config)
+    deleteRight = FileActions.FileActionDeleteRight(relFilePath, config)
+    deleteBoth = FileActions.FileActionDeleteBoth(relFilePath, config)
+    skip = FileActions.FileActionSkip(relFilePath, config)
 
     # If a preferred side is not set, set it based on which file is newer.
-    if preferredSide == FolderComparer.PREFER_NONE:
+    preferredSide = config.GetPreferredSide()
+    if preferredSide == FolderComparerConfig.PREFER_NONE:
         if leftModTime > rightModTime:
-            preferredSide = FolderComparer.PREFER_LEFT
+            preferredSide = FolderComparerConfig.PREFER_LEFT
         else:
-            preferredSide = FolderComparer.PREFER_RIGHT
+            preferredSide = FolderComparerConfig.PREFER_RIGHT
 
     actions = collections.deque()
-    if preferredSide == FolderComparer.PREFER_LEFT:
+    if preferredSide == FolderComparerConfig.PREFER_LEFT:
         actions.append(copyRight)
         actions.append(copyLeft)
     else:
@@ -42,24 +43,25 @@ def CreateDiffFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
     actions.append(deleteBoth)
     actions.append(skip)
 
-    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    pairing = FilePairing(relFilePath, config, actions)
     return pairing
 
 
 
-def CreateLeftOnlyFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
-    leftFilePath = os.path.join(leftRoot, relFilePath)
+def CreateLeftOnlyFilePairing(relFilePath, config):
+    leftFilePath = os.path.join(config.GetLeftFolder(), relFilePath)
     assert os.path.isfile(leftFilePath)
 
-    copyRight = FileActions.FileActionCopyRight(relFilePath, leftRoot, rightRoot)
-    deleteLeft = FileActions.FileActionDeleteLeft(relFilePath, leftRoot, rightRoot)
-    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+    copyRight = FileActions.FileActionCopyRight(relFilePath, config)
+    deleteLeft = FileActions.FileActionDeleteLeft(relFilePath, config)
+    skip = FileActions.FileActionSkip(relFilePath, config)
 
-    if preferredSide == FolderComparer.PREFER_NONE:
-        preferredSide = FolderComparer.PREFER_LEFT
+    preferredSide = config.GetPreferredSide()
+    if preferredSide == FolderComparerConfig.PREFER_NONE:
+        preferredSide = FolderComparerConfig.PREFER_LEFT
 
     actions = collections.deque()
-    if preferredSide == FolderComparer.PREFER_LEFT:
+    if preferredSide == FolderComparerConfig.PREFER_LEFT:
         actions.append(copyRight)
         actions.append(deleteLeft)
     else:
@@ -68,23 +70,24 @@ def CreateLeftOnlyFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
 
     actions.append(skip)
 
-    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    pairing = FilePairing(relFilePath, config, actions)
     return pairing
 
 
-def CreateRightOnlyFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
-    rightFilePath = os.path.join(rightRoot, relFilePath)
+def CreateRightOnlyFilePairing(relFilePath, config):
+    rightFilePath = os.path.join(config.GetRightFolder(), relFilePath)
     assert os.path.isfile(rightFilePath)
 
-    copyLeft = FileActions.FileActionCopyLeft(relFilePath, leftRoot, rightRoot)
-    deleteRight = FileActions.FileActionDeleteRight(relFilePath, leftRoot, rightRoot)
-    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+    copyLeft = FileActions.FileActionCopyLeft(relFilePath, config)
+    deleteRight = FileActions.FileActionDeleteRight(relFilePath, config)
+    skip = FileActions.FileActionSkip(relFilePath, config)
 
-    if preferredSide == FolderComparer.PREFER_NONE:
-        preferredSide = FolderComparer.PREFER_RIGHT
+    preferredSide = config.GetPreferredSide()
+    if preferredSide == FolderComparerConfig.PREFER_NONE:
+        preferredSide = FolderComparerConfig.PREFER_RIGHT
 
     actions = collections.deque()
-    if preferredSide == FolderComparer.PREFER_LEFT:
+    if preferredSide == FolderComparerConfig.PREFER_LEFT:
         actions.append(deleteRight)
         actions.append(copyLeft)
     else:
@@ -93,23 +96,24 @@ def CreateRightOnlyFilePairing(relFilePath, leftRoot, rightRoot, preferredSide):
 
     actions.append(skip)
 
-    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    pairing = FilePairing(relFilePath, config, actions)
     return pairing
 
 
-def CreateLeftOnlyDirPairing(relFilePath, leftRoot, rightRoot, preferredSide):
-    theDir = os.path.join(leftRoot, relFilePath)
+def CreateLeftOnlyDirPairing(relFilePath, config):
+    theDir = os.path.join(config.GetLeftFolder(), relFilePath)
     assert os.path.isdir(theDir), theDir + ' is not a directory!'
 
-    copyTreeRight = FileActions.FileActionCopyTreeRight(relFilePath, leftRoot, rightRoot)
-    deleteTreeLeft = FileActions.FileActionDeleteTreeLeft(relFilePath, leftRoot, rightRoot)
-    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+    copyTreeRight = FileActions.FileActionCopyTreeRight(relFilePath, config)
+    deleteTreeLeft = FileActions.FileActionDeleteTreeLeft(relFilePath, config)
+    skip = FileActions.FileActionSkip(relFilePath, config)
 
-    if preferredSide == FolderComparer.PREFER_NONE:
-        preferredSide = FolderComparer.PREFER_LEFT
+    preferredSide = config.GetPreferredSide()
+    if preferredSide == FolderComparerConfig.PREFER_NONE:
+        preferredSide = FolderComparerConfig.PREFER_LEFT
 
     actions = collections.deque()
-    if preferredSide == FolderComparer.PREFER_LEFT:
+    if preferredSide == FolderComparerConfig.PREFER_LEFT:
         actions.append(copyTreeRight)
         actions.append(deleteTreeLeft)
     else:
@@ -118,23 +122,24 @@ def CreateLeftOnlyDirPairing(relFilePath, leftRoot, rightRoot, preferredSide):
 
     actions.append(skip)
 
-    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    pairing = FilePairing(relFilePath, config, actions)
     return pairing
 
 
-def CreateRightOnlyDirPairing(relFilePath, leftRoot, rightRoot, preferredSide):
-    theDir = os.path.join(rightRoot, relFilePath)
+def CreateRightOnlyDirPairing(relFilePath, config):
+    theDir = os.path.join(config.GetRightFolder(), relFilePath)
     assert os.path.isdir(theDir)
 
-    copyTreeLeft = FileActions.FileActionCopyTreeLeft(relFilePath, leftRoot, rightRoot)
-    deleteTreeRight = FileActions.FileActionDeleteTreeRight(relFilePath, leftRoot, rightRoot)
-    skip = FileActions.FileActionSkip(relFilePath, leftRoot, rightRoot)
+    copyTreeLeft = FileActions.FileActionCopyTreeLeft(relFilePath, config)
+    deleteTreeRight = FileActions.FileActionDeleteTreeRight(relFilePath, config)
+    skip = FileActions.FileActionSkip(relFilePath, config)
 
-    if preferredSide == FolderComparer.PREFER_NONE:
-        preferredSide = FolderComparer.PREFER_RIGHT
+    preferredSide = config.GetPreferredSide()
+    if preferredSide == FolderComparerConfig.PREFER_NONE:
+        preferredSide = FolderComparerConfig.PREFER_RIGHT
 
     actions = collections.deque()
-    if preferredSide == FolderComparer.PREFER_LEFT:
+    if preferredSide == FolderComparerConfig.PREFER_LEFT:
         actions.append(deleteTreeRight)
         actions.append(copyTreeLeft)
     else:
@@ -143,7 +148,7 @@ def CreateRightOnlyDirPairing(relFilePath, leftRoot, rightRoot, preferredSide):
 
     actions.append(skip)
 
-    pairing = FilePairing(relFilePath, leftRoot, rightRoot, preferredSide, actions)
+    pairing = FilePairing(relFilePath, config, actions)
     return pairing
 
 
@@ -151,11 +156,9 @@ def CreateRightOnlyDirPairing(relFilePath, leftRoot, rightRoot, preferredSide):
 
 class FilePairing(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot, preferredSide, actions):
+    def __init__(self, relFilePath, config, actions):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
-        self.__preferredSide = preferredSide
+        self.__config = config
         self.__actions = actions
 
 
@@ -174,11 +177,11 @@ class FilePairing(object):
     def Render(self, width):
         currentActionType = self.__actions[0].GetType()
 
-        leftFilePath = os.path.join(self.__leftRoot, self.__relFilePath)
+        leftFilePath = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
         if not os.path.isfile(leftFilePath) and not os.path.isdir(leftFilePath):
             leftFilePath = ''
 
-        rightFilePath = os.path.join(self.__rightRoot, self.__relFilePath)
+        rightFilePath = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
         if not os.path.isfile(rightFilePath) and not os.path.isdir(rightFilePath):
             rightFilePath = ''
 

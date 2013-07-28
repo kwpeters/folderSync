@@ -39,10 +39,9 @@ def GetOverwriteWarnings(relPath, srcRoot, destRoot):
 
 class FileActionCopyLeft(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -51,15 +50,15 @@ class FileActionCopyLeft(object):
 
     def GetWarnings(self):
         warnings = []
-        leftFile = os.path.join(self.__leftRoot, self.__relFilePath)
+        leftFile = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
         if os.path.isfile(leftFile):
-            warnings.extend(GetOverwriteWarnings(self.__relFilePath, self.__rightRoot, self.__leftRoot))
+            warnings.extend(GetOverwriteWarnings(self.__relFilePath, self.__config.GetRightFolder(), self.__config.GetLeftFolder()))
         return warnings
 
 
     def PerformAction(self):
-        leftFile = os.path.join(self.__leftRoot, self.__relFilePath)
-        rightFile = os.path.join(self.__rightRoot, self.__relFilePath)
+        leftFile = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
+        rightFile = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
 
         # Create the destination directory if it doesn't exist already.
         utility.CreateDirForFile(leftFile)
@@ -70,10 +69,9 @@ class FileActionCopyLeft(object):
 
 class FileActionCopyRight(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -82,15 +80,15 @@ class FileActionCopyRight(object):
 
     def GetWarnings(self):
         warnings = []
-        rightFile = os.path.join(self.__rightRoot, self.__relFilePath)
+        rightFile = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
         if os.path.isfile(rightFile):
-            warnings.extend(GetOverwriteWarnings(self.__relFilePath, self.__leftRoot, self.__rightRoot))
+            warnings.extend(GetOverwriteWarnings(self.__relFilePath, self.__config.GetLeftFolder(), self.__config.GetRightFolder()))
         return warnings
 
 
     def PerformAction(self):
-        leftFile = os.path.join(self.__leftRoot, self.__relFilePath)
-        rightFile = os.path.join(self.__rightRoot, self.__relFilePath)
+        leftFile = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
+        rightFile = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
 
         # Create the destination directory if it doesn't exist already.
         utility.CreateDirForFile(rightFile)
@@ -101,10 +99,9 @@ class FileActionCopyRight(object):
 
 class FileActionDeleteLeft(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -116,17 +113,16 @@ class FileActionDeleteLeft(object):
 
 
     def PerformAction(self):
-        leftFile = os.path.join(self.__leftRoot, self.__relFilePath)
+        leftFile = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
         os.remove(leftFile)
 
 
 
 class FileActionDeleteRight(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -138,16 +134,15 @@ class FileActionDeleteRight(object):
 
 
     def PerformAction(self):
-        rightFile = os.path.join(self.__rightRoot, self.__relFilePath)
+        rightFile = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
         os.remove(rightFile)
 
 
 class FileActionDeleteBoth(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -159,20 +154,19 @@ class FileActionDeleteBoth(object):
 
 
     def PerformAction(self):
-        leftFile = os.path.join(self.__leftRoot, self.__relFilePath)
+        leftFile = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
         os.remove(leftFile)
 
-        rightFile = os.path.join(self.__rightRoot, self.__relFilePath)
+        rightFile = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
         os.remove(rightFile)
 
 
 
 class FileActionSkip(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -189,10 +183,9 @@ class FileActionSkip(object):
 
 class FileActionCopyTreeLeft(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -204,17 +197,16 @@ class FileActionCopyTreeLeft(object):
 
 
     def PerformAction(self):
-        srcDir = os.path.join(self.__rightRoot, self.__relFilePath)
-        dstDir = os.path.join(self.__leftRoot, self.__relFilePath)
+        srcDir = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
+        dstDir = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
         shutil.copytree(srcDir, dstDir)
 
 
 class FileActionCopyTreeRight(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -226,17 +218,16 @@ class FileActionCopyTreeRight(object):
 
 
     def PerformAction(self):
-        srcDir = os.path.join(self.__leftRoot, self.__relFilePath)
-        dstDir = os.path.join(self.__rightRoot, self.__relFilePath)
+        srcDir = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
+        dstDir = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
         shutil.copytree(srcDir, dstDir)
 
 
 class FileActionDeleteTreeLeft(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -248,16 +239,15 @@ class FileActionDeleteTreeLeft(object):
 
 
     def PerformAction(self):
-        dir = os.path.join(self.__leftRoot, self.__relFilePath)
-        shutil.rmtree(dir)
+        theDir = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
+        shutil.rmtree(theDir)
 
 
 class FileActionDeleteTreeRight(object):
 
-    def __init__(self, relFilePath, leftRoot, rightRoot):
+    def __init__(self, relFilePath, config):
         self.__relFilePath = relFilePath
-        self.__leftRoot = leftRoot
-        self.__rightRoot = rightRoot
+        self.__config = config
 
 
     def GetType(self):
@@ -269,5 +259,5 @@ class FileActionDeleteTreeRight(object):
 
 
     def PerformAction(self):
-        theDir = os.path.join(self.__rightRoot, self.__relFilePath)
+        theDir = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
         shutil.rmtree(theDir)
