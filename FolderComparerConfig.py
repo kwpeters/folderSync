@@ -6,6 +6,13 @@ PREFER_LEFT         = 1
 PREFER_RIGHT        = 2
 
 
+DEFAULT_IGNORE_REGEXES = [
+    # ._xyzzy files are used in Mac OS X on some filesystems to store metadata about a file
+    re.compile(r'^(.*/)*\._.*$', re.IGNORECASE),   # todo: Update "/" for use on Windows
+    # .DS_Store files are used on Mac OS X to store custom attributes of a folder
+    re.compile(r'^(.*/)*\.DS_Store$', re.IGNORECASE)   # todo: Update "/" for use on Windows
+    ]
+
 class FolderComparerConfig(object):
 
     def __init__(self, leftFolder, rightFolder, preferredSide, ignoreRegexes):
@@ -14,12 +21,7 @@ class FolderComparerConfig(object):
         self.__rightFolder = rightFolder
         self.__preferredSide = preferredSide
 
-        self.__ignoreRegexes = [
-            # ._xyzzy files are used in Mac OS X on some filesystems to store metadata about a file
-            re.compile(r'^(.*/)*\._.*$', re.IGNORECASE),   # todo: Update "/" for use on Windows
-            # .DS_Store files are used on Mac OS X to store custom attributes of a folder
-            re.compile(r'^(.*/)*\.DS_Store$', re.IGNORECASE)   # todo: Update "/" for use on Windows
-            ]
+        self.__ignoreRegexes = DEFAULT_IGNORE_REGEXES
 
         self.__ignoreRegexes.extend(ignoreRegexes)
 

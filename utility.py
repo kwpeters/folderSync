@@ -4,6 +4,7 @@ import os
 import os.path
 import re
 from collections import deque
+import shutil
 
 
 def CreateDir(theDir):
@@ -94,3 +95,36 @@ def ShortenPath(path, numChars):
             canInsertMore = False
 
     return beg + YADA + end
+
+
+def CopyDir(srcDir, dstDir, ignoreRegexes):
+    r'''Helper function that copies files from srcDir to dstDir while
+    ignoring files that match any pattern found in ignoreRegexes.
+    '''
+    srcDstPairings = []
+
+    for (dirPath, subdirs, files) in  os.walk(srcDir):
+        for curFile in files:
+            curFilePath = os.path.join(dirPath, curFile)
+
+            if not MatchesAny(curFilePath, ignoreRegexes):
+                assert curFilePath.startswith(srcDir)
+                relativePart = curFilePath[len(srcDir):]
+
+                # If the relative parts starts with a "/" then get rid
+                # of it.  It will cause the following os.path.join()
+                # to discard everything in front of it.
+                if relativePart.startswith(os.sep):
+                    relativePart = relativePart[1:]
+
+                dstFile = os.path.join(dstDir, relativePart)
+                srcDstPairings.append((curFilePath, dstFile))
+
+    for (srcFile, dstFile) in srcDstPairings:
+        # Make sure the target directory exists.  todo: This could be
+        # optimized by creating a set of non exisitng directories
+        # first and creating them, before doing the individual file
+        # copies.
+        CreateDirForFile(dstFile)
+        # Do the copying.
+        shutil.copy2(srcFile, dstFile)

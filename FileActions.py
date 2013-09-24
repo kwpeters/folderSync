@@ -199,7 +199,7 @@ class FileActionCopyTreeLeft(object):
     def PerformAction(self):
         srcDir = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
         dstDir = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
-        shutil.copytree(srcDir, dstDir)
+        utility.CopyDir(srcDir, dstDir, self.__config.GetIgnoreRegexes())
 
 
 class FileActionCopyTreeRight(object):
@@ -220,7 +220,7 @@ class FileActionCopyTreeRight(object):
     def PerformAction(self):
         srcDir = os.path.join(self.__config.GetLeftFolder(), self.__relFilePath)
         dstDir = os.path.join(self.__config.GetRightFolder(), self.__relFilePath)
-        shutil.copytree(srcDir, dstDir)
+        utility.CopyDir(srcDir, dstDir, self.__config.GetIgnoreRegexes())
 
 
 class FileActionDeleteTreeLeft(object):

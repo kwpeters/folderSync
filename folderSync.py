@@ -70,40 +70,27 @@ if __name__ == '__main__':
     config = FolderComparerConfig.FolderComparerConfig(leftDir, rightDir, FolderComparerConfig.PREFER_NONE, [])
     comp = FolderComparer.FolderComparer(config)
 
-    # Same files are not interesting.
-    # print 'Same files:'
-    # print comp.GetSameFiles()
-
+    print '-' * OUTPUT_WIDTH
     print 'Left:', leftDir
     print 'Right:', rightDir
+    print '-' * OUTPUT_WIDTH
 
-    diffPairings = comp.GetDiffFilePairings()
-    leftOnlyPairings = comp.GetLeftOnlyFilePairings()
-    leftOnlyDirPairings = comp.GetLeftOnlyDirPairings()
-    rightOnlyPairings = comp.GetRightOnlyFilePairings()
-    rightOnlyDirPairings = comp.GetRightOnlyDirPairings()
+    # A list of tuples containing a description of the category and
+    # the pairings for that category.  A list was used in order to
+    # keep the order of the categories.
+    categorizedPairings = [
+        ('Modified Files', comp.GetDiffFilePairings()),
+        ('Left-only Files', comp.GetLeftOnlyFilePairings()),
+        ('Left-only Directories', comp.GetLeftOnlyDirPairings()),
+        ('Right-only Files', comp.GetRightOnlyFilePairings()),
+        ('Right-only Directories', comp.GetRightOnlyDirPairings())
+        ]
 
-    if len(diffPairings) > 0:
-        print
-        print 'Modified files:'
-        PrintPairings(diffPairings)
+    # Display an overview of all the categories and thier pairings.
+    for (desc, pairings) in categorizedPairings:
+        if len(pairings) > 0:
+            print
+            print desc + ':'
+            PrintPairings(pairings)
 
-    if len(leftOnlyPairings) > 0:
-        print
-        print 'Left-only files:'
-        PrintPairings(leftOnlyPairings)
-
-    if len(leftOnlyDirPairings) > 0:
-        print
-        print 'Left-only directories:'
-        PrintPairings(leftOnlyDirPairings)
-
-    if len(rightOnlyPairings) > 0:
-        print
-        print 'Right-only files:'
-        PrintPairings(rightOnlyPairings)
-
-    if len(rightOnlyDirPairings) > 0:
-        print
-        print 'Right-only directories:'
-        PrintPairings(rightOnlyDirPairings)
+    # todo: Interview the user to set the action for each pairing.
