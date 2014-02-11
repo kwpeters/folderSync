@@ -1,4 +1,4 @@
-#! /usr/bin/python -O
+#!/usr/bin/env python -O
 
 '''
 This program runs the unit tests for folderSync.
