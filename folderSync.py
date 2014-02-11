@@ -1,10 +1,11 @@
-#! /usr/bin/python
+#!/usr/bin/env python -O
+
 import sys
 import getopt
 import os.path
 import FolderComparerConfig
 import FolderComparer
-# import prompts
+import prompts
 
 
 def GetUsage():
@@ -16,7 +17,7 @@ folderSync.py <left_folder> <right_folder>
 NEWER_SIDE_LEFT = 0;
 NEWER_SIDE_RIGHT = 1;
 
-OUTPUT_WIDTH = 120
+OUTPUT_WIDTH = 300
 
 def PrintPairings(pairings):
     for pairing in pairings:
@@ -92,5 +93,14 @@ if __name__ == '__main__':
             print
             print desc + ':'
             PrintPairings(pairings)
+            acceptOperations = prompts.GetYesNo('Accept operations?')
+            if acceptOperations:
+                for pairing in pairings:
+                    PrintPairing(pairing)
+                    pairing.PerformAction()
 
     # todo: Interview the user to set the action for each pairing.
+    # todo: Complete the interview before starting to execute actions.
+
+
+
