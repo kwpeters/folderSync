@@ -185,6 +185,8 @@ class FilePairing(object):
         if not os.path.isfile(rightFilePath) and not os.path.isdir(rightFilePath):
             rightFilePath = ''
 
+        assert not ((leftFilePath == '') and (rightFilePath == '')), '%s is not in left or right!' % self.__relFilePath
+
         shortLen = (width - 5)/2
 
         shortLeft = utility.ShortenPath(leftFilePath, shortLen)

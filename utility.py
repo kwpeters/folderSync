@@ -104,6 +104,21 @@ def CopyDir(srcDir, dstDir, ignoreRegexes):
     srcDstPairings = []
 
     for (dirPath, subdirs, files) in  os.walk(srcDir):
+
+        curDirPath = dirPath
+        if not MatchesAny(curDirPath, ignoreRegexes):
+            assert curDirPath.startswith(srcDir)
+            relativePart = curDirPath[len(srcDir):]
+
+            # If the relative part starts with a "/" then get rid
+            # of it.  It will cause the following os.path.join()
+            # to discard everything in front of it.
+            if relativePart.startswith(os.sep):
+                relativePart = relativePart[1:]
+
+            dstFolder = os.path.join(dstDir, relativePart)
+            srcDstPairings.append((curDirPath, dstFolder))
+
         for curFile in files:
             curFilePath = os.path.join(dirPath, curFile)
 
@@ -111,7 +126,7 @@ def CopyDir(srcDir, dstDir, ignoreRegexes):
                 assert curFilePath.startswith(srcDir)
                 relativePart = curFilePath[len(srcDir):]
 
-                # If the relative parts starts with a "/" then get rid
+                # If the relative part starts with a "/" then get rid
                 # of it.  It will cause the following os.path.join()
                 # to discard everything in front of it.
                 if relativePart.startswith(os.sep):
@@ -120,11 +135,16 @@ def CopyDir(srcDir, dstDir, ignoreRegexes):
                 dstFile = os.path.join(dstDir, relativePart)
                 srcDstPairings.append((curFilePath, dstFile))
 
-    for (srcFile, dstFile) in srcDstPairings:
-        # Make sure the target directory exists.  todo: This could be
-        # optimized by creating a set of non exisitng directories
-        # first and creating them, before doing the individual file
-        # copies.
-        CreateDirForFile(dstFile)
-        # Do the copying.
-        shutil.copy2(srcFile, dstFile)
+    for (src, dst) in srcDstPairings:
+
+        if os.path.isdir(src):
+            CreateDir(dst)
+
+        else:
+            # Make sure the target directory exists.  todo: This could be
+            # optimized by creating a set of non exisitng directories
+            # first and creating them, before doing the individual file
+            # copies.
+            CreateDirForFile(dst)
+            # Do the copying.
+            shutil.copy2(src, dst)
