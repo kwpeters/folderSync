@@ -1,16 +1,22 @@
 import re
-
+import os
 
 PREFER_NONE         = 0
 PREFER_LEFT         = 1
 PREFER_RIGHT        = 2
 
 
+if os.sep == '/':
+    SEPREGEX = '/'
+else:
+    SEPREGEX = '\\'
+
+
 DEFAULT_IGNORE_REGEXES = [
     # ._xyzzy files are used in Mac OS X on some filesystems to store metadata about a file
-    re.compile(r'^(.*/)*\._.*$', re.IGNORECASE),   # todo: Update "/" for use on Windows
+    re.compile(r'^(.*' + SEPREGEX +  r')*\._.*$', re.IGNORECASE),
     # .DS_Store files are used on Mac OS X to store custom attributes of a folder
-    re.compile(r'^(.*/)*\.DS_Store$', re.IGNORECASE)   # todo: Update "/" for use on Windows
+    re.compile(r'^(.*' + SEPREGEX  + r')*\.DS_Store$', re.IGNORECASE)
     ]
 
 class FolderComparerConfig(object):

@@ -138,13 +138,11 @@ def CopyDir(srcDir, dstDir, ignoreRegexes):
     for (src, dst) in srcDstPairings:
 
         if os.path.isdir(src):
+            # The current item is a directory.  Just create the
+            # destination directory.
             CreateDir(dst)
 
         else:
-            # Make sure the target directory exists.  todo: This could be
-            # optimized by creating a set of non exisitng directories
-            # first and creating them, before doing the individual file
-            # copies.
-            CreateDirForFile(dst)
             # Do the copying.
+            CreateDirForFile(dst)
             shutil.copy2(src, dst)
