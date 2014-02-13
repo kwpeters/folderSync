@@ -6,7 +6,7 @@ import os.path
 import FolderComparerConfig
 import FolderComparer
 import prompts
-import importHelper
+import json
 import re
 
 
@@ -42,7 +42,13 @@ if __name__ == '__main__':
             print GetUsage()
             sys.exit(0)
         elif option == '--config':
-            userConfig = importHelper.importFrom(value, 'config')
+            if not os.path.isfile(value):
+                print '%s is not a file!' % value
+                print GetUsage()
+                sys.exit(1)
+            jsonData = open(value)
+            userConfig = json.load(jsonData)
+            jsonData.close()
         else:
             print 'Unknown option!'
             print GetUsage()
@@ -73,10 +79,20 @@ if __name__ == '__main__':
     # Compile the ignore regexes provided in the config file.
     userConfig['ignoreRegexes'] = [re.compile(curRegex, re.IGNORECASE) for curRegex in userConfig['ignoreRegexes']]
 
+    # Translate the preferred side from the user config's string to the constant
+    # value.
+    userConfigPreferredSide = userConfig.get('preferSide', 'none')
+    if userConfigPreferredSide == 'left':
+        userConfigPreferredSide = FolderComparerConfig.PREFER_LEFT
+    elif userConfigPreferredSide == 'right':
+        userConfigPreferredSide = FolderComparerConfig.PREFER_RIGHT
+    else:
+        userConfigPreferredSide = FolderComparerConfig.PREFER_NONE
+
     config = FolderComparerConfig.FolderComparerConfig(
         userConfig['leftDir'],
         userConfig['rightDir'],
-        FolderComparerConfig.PREFER_NONE,
+        userConfigPreferredSide,
         userConfig['ignoreRegexes'])
 
     comp = FolderComparer.FolderComparer(config)
