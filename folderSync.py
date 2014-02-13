@@ -36,6 +36,8 @@ def PrintPairing(pairing):
 
 if __name__ == '__main__':
 
+    userConfig = None
+
     (options, args) = getopt.getopt(sys.argv[1:], '', ['config=', 'help'])
     for (option, value) in options:
         if option == '--help':
@@ -53,6 +55,11 @@ if __name__ == '__main__':
             print 'Unknown option!'
             print GetUsage()
             sys.exit(1)
+
+    if not userConfig:
+        print 'No configuration file specified.  Use --config.'
+        print GetUsage()
+        sys.exit(1)
 
     if len(args) > 0:
         print 'Invalid number of arguments!'
@@ -129,7 +136,6 @@ if __name__ == '__main__':
             acceptOperations = prompts.GetYesNo('Accept operations?')
             if acceptOperations:
                 for pairing in pairings:
-                    PrintPairing(pairing)
                     pairing.PerformAction()
 
     # todo: Interview the user to set the action for each pairing.

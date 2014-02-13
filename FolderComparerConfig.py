@@ -7,9 +7,9 @@ PREFER_RIGHT        = 2
 
 
 if os.sep == '/':
-    SEPREGEX = '/'
+    SEPREGEX = r'/'
 else:
-    SEPREGEX = '\\'
+    SEPREGEX = r'\\'
 
 
 DEFAULT_IGNORE_REGEXES = [
